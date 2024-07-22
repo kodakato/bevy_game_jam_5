@@ -8,7 +8,6 @@ impl Plugin for DebugPlugin {
     fn build(&self, app: &mut App) {
         if cfg!(debug_assertions) {
             app
-                .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
                 .add_plugins(RapierDebugRenderPlugin::default())
             ;
 

@@ -22,6 +22,11 @@ pub struct PlayerBundle(
     PlayerTag,
     SpriteBundle,
     Collider,
+    InputManagerBundle<PlayerAction>,
+    RigidBody,
+    Velocity,
+    ExternalImpulse,
+    ColliderMassProperties,
 );
 
 struct PlayerSize {
@@ -33,11 +38,17 @@ const PLAYER_SIZE: PlayerSize = PlayerSize {
     height: 100.0,
     width: 50.0,
 };
+pub const PLAYER_MAX_VELOCITY: f32 = 20.0;
+
+use crate::input::PlayerAction;
 
 fn spawn_player(mut commands: Commands,
                 asset_server: Res<AssetServer>,) {
     let texture_handle: Handle<Image> = asset_server.load("textures/ship.png");
     let transform = Transform::from_xyz(-150.0, 0.0, 0.0);
+
+    let input_map = InputMap::new([(PlayerAction::Accelerate, KeyCode::Space)]);
+
     commands.spawn(PlayerBundle(
         PlayerTag,
         SpriteBundle{
@@ -53,9 +64,12 @@ fn spawn_player(mut commands: Commands,
             PLAYER_SIZE.height / 2.0 - PLAYER_SIZE.width / 2.0,
             PLAYER_SIZE.width / 2.0
         ),
+        InputManagerBundle::with_map(input_map),
+        RigidBody::Dynamic,
+        Velocity::default(),
+        ExternalImpulse::default(),
+        ColliderMassProperties::Mass(20.0),
     ));
 }
 
-// fn accelerate_forward() {}
 
-// fn rotate_player() {}
