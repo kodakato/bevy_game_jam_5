@@ -45,9 +45,16 @@ use crate::input::PlayerAction;
 fn spawn_player(mut commands: Commands,
                 asset_server: Res<AssetServer>,) {
     let texture_handle: Handle<Image> = asset_server.load("textures/ship.png");
-    let transform = Transform::from_xyz(-150.0, 0.0, 0.0);
+    let transform = Transform::from_xyz(-150.0, 0.0, 0.0).with_rotation(Quat::from_rotation_z(0.0));
 
-    let input_map = InputMap::new([(PlayerAction::Accelerate, KeyCode::Space)]);
+
+    let input_map = InputMap::new(
+        [
+            (PlayerAction::Accelerate, KeyCode::Space),
+            (PlayerAction::Left, KeyCode::KeyA),
+            (PlayerAction::Right, KeyCode::KeyD),
+        ]
+    );
 
     commands.spawn(PlayerBundle(
         PlayerTag,
