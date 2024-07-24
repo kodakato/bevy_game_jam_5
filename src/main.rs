@@ -2,9 +2,10 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 mod camera;
-mod player;
-mod input;
 mod debug;
+mod input;
+mod player;
+mod projectile;
 
 fn main() -> AppExit {
     let mut rapier_config = RapierConfiguration::new(100.0);
@@ -16,6 +17,7 @@ fn main() -> AppExit {
         .add_plugins(camera::CameraPlugin)
         .add_plugins(player::PlayerPlugin)
         .add_plugins(input::InputPlugin)
+        .add_plugins(projectile::ProjectilePlugin)
         .add_plugins(debug::DebugPlugin)
         .run()
 }
