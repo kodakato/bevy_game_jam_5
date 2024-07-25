@@ -5,8 +5,11 @@ pub struct InputPlugin;
 
 impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(InputManagerPlugin::<PlayerAction>::default())
-            .add_systems(Update, (player_movement, shoot_projectile));
+        app.add_plugins((
+            InputManagerPlugin::<PlayerAction>::default(),
+            InputManagerPlugin::<CameraAction>::default(),
+        ))
+        .add_systems(Update, (player_movement, shoot_projectile, camera_control));
     }
 }
 
@@ -79,9 +82,32 @@ fn shoot_projectile(
         rotation: transform.rotation,
         ..default()
     };
-    
+
     let velocity = Velocity::linear(velocity.linvel); // Preserve only linvel
 
     spawn_projectile_ew.send(SpawnProjectileEvent(projectile_transform, velocity));
 }
 
+#[derive(Actionlike, PartialEq, Eq, Hash, Clone, Copy, Debug, Reflect)]
+pub enum CameraAction {
+    ZoomIn,
+    ZoomOut,
+}
+
+use crate::camera::PROJECTION_SCALE;
+
+fn camera_control(
+    mut camera_q: Query<(&ActionState<CameraAction>, &mut OrthographicProjection), With<Camera>>,
+) {
+    let (action_state, mut projection) = camera_q.single_mut();
+
+    action_state
+        .get_just_pressed()
+        .iter()
+        .for_each(|&action| match action {
+            CameraAction::ZoomIn => {
+                projection.scale -= PROJECTION_SCALE;
+            }
+            CameraAction::ZoomOut => projection.scale += PROJECTION_SCALE,
+        });
+}

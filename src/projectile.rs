@@ -9,13 +9,7 @@ impl Plugin for ProjectilePlugin {
             // Events
             .add_event::<SpawnProjectileEvent>()
             // Systems
-            .add_systems(Update, 
-                (
-                    spawn_projectile,
-                    accelerate_projectiles,
-                )
-            )
-            ;
+            .add_systems(Update, (spawn_projectile, accelerate_projectiles));
     }
 }
 
@@ -23,7 +17,15 @@ impl Plugin for ProjectilePlugin {
 pub struct SpawnProjectileEvent(pub Transform, pub Velocity);
 
 #[derive(Default, Bundle)]
-pub struct ProjectileBundle(RigidBody, Collider, Sensor, Velocity, SpriteBundle, ProjectileTag, ExternalImpulse);
+pub struct ProjectileBundle(
+    RigidBody,
+    Collider,
+    Sensor,
+    Velocity,
+    SpriteBundle,
+    ProjectileTag,
+    ExternalImpulse,
+);
 
 #[derive(Component, Default)]
 pub struct ProjectileTag;
