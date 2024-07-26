@@ -26,6 +26,7 @@ pub struct PlayerBundle(
     ExternalImpulse,
     ColliderMassProperties,
     Damping,
+    ExternalForce,
 );
 
 struct PlayerSize {
@@ -73,7 +74,8 @@ fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         ColliderMassProperties::Mass(20.0),
         Damping {
             linear_damping: 0.0,
-            angular_damping: 0.5,
+            angular_damping: 0.1,
         },
+        ExternalForce::default(),
     ));
 }

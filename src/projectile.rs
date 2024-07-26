@@ -20,11 +20,12 @@ pub struct SpawnProjectileEvent(pub Transform, pub Velocity);
 pub struct ProjectileBundle(
     RigidBody,
     Collider,
-    Sensor,
+    //Sensor,
     Velocity,
     SpriteBundle,
     ProjectileTag,
     ExternalImpulse,
+    ColliderMassProperties,
 );
 
 #[derive(Component, Default)]
@@ -48,7 +49,7 @@ fn spawn_projectile(
         let projectile_bundle = ProjectileBundle(
             RigidBody::Dynamic,
             Collider::capsule_y(PROJECTILE_SIZE.height / 2.0, PROJECTILE_SIZE.width / 2.0),
-            Sensor,
+            //Sensor,
             event.1,
             SpriteBundle {
                 transform: event.0,
@@ -56,13 +57,14 @@ fn spawn_projectile(
             },
             ProjectileTag,
             ExternalImpulse::default(),
+            ColliderMassProperties::Mass(1.0),
         );
 
         commands.spawn(projectile_bundle);
     }
 }
 
-const PROJECTILE_ACCELERATION: f32 = 3000.0;
+const PROJECTILE_ACCELERATION: f32 = 400.0;
 
 fn accelerate_projectiles(
     mut projectile_q: Query<(&mut ExternalImpulse, &Transform), With<ProjectileTag>>,
@@ -71,6 +73,6 @@ fn accelerate_projectiles(
         let rotation = transform.rotation.to_euler(EulerRot::XYZ).2;
         let direction = Vec2::new(-rotation.sin(), rotation.cos());
 
-        ext_impulse.impulse = direction * PROJECTILE_ACCELERATION;
+        ext_impulse.impulse += direction * PROJECTILE_ACCELERATION;
     }
 }

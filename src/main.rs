@@ -4,10 +4,10 @@ use bevy_rapier2d::prelude::*;
 mod camera;
 mod debug;
 mod input;
+mod level;
+mod planet;
 mod player;
 mod projectile;
-mod planet;
-mod level;
 
 fn main() -> AppExit {
     let mut rapier_config = RapierConfiguration::new(100.0);

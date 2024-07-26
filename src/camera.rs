@@ -11,7 +11,7 @@ impl Plugin for CameraPlugin {
     }
 }
 
-pub const PROJECTION_SCALE: f32 = 0.1;
+pub const PROJECTION_SCALE: f32 = 1.0;
 
 use crate::input::*;
 use leafwing_input_manager::prelude::*;

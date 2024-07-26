@@ -38,7 +38,7 @@ fn player_movement(
         let rotation = transform.rotation.to_euler(EulerRot::XYZ).2;
         let direction = Vec2::new(-rotation.sin(), rotation.cos());
 
-        ext_impulse.impulse = direction * 100.0;
+        ext_impulse.impulse += direction * 100.0;
     }
 
     if action_state.pressed(&PlayerAction::Left) {
