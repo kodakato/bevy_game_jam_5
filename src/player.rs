@@ -52,6 +52,26 @@ fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         (PlayerAction::Shoot, KeyCode::Space),
     ]);
 
+    let cuboid_height = PLAYER_SIZE.height - PLAYER_SIZE.width;
+    let ball_radius = PLAYER_SIZE.width / 2.0;
+
+    // Create a combined collider using a cuboid and a ball
+    let colliders = Collider::compound(vec![
+        (
+            Vec2::new(0.0, -cuboid_height / 2.0).into(),
+            0.0,
+            Collider::cuboid(PLAYER_SIZE.width / 2.0, cuboid_height / 2.0),
+        ),
+        (
+            Vec2::new(0.0, 0.0).into(),
+            0.0,
+            Collider::capsule_y(
+                PLAYER_SIZE.height / 2.0 - PLAYER_SIZE.width / 2.0,
+                PLAYER_SIZE.width / 2.0,
+            ),
+        ),
+    ]);
+
     commands.spawn(PlayerBundle(
         PlayerTag,
         SpriteBundle {
@@ -63,10 +83,7 @@ fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
             transform,
             ..default()
         },
-        Collider::capsule_y(
-            PLAYER_SIZE.height / 2.0 - PLAYER_SIZE.width / 2.0,
-            PLAYER_SIZE.width / 2.0,
-        ),
+        colliders,
         InputManagerBundle::with_map(input_map),
         RigidBody::Dynamic,
         Velocity::default(),

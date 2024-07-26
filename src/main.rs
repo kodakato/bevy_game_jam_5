@@ -8,6 +8,7 @@ mod level;
 mod planet;
 mod player;
 mod projectile;
+mod satellite;
 
 fn main() -> AppExit {
     let mut rapier_config = RapierConfiguration::new(100.0);
@@ -23,5 +24,6 @@ fn main() -> AppExit {
         .add_plugins(debug::DebugPlugin)
         .add_plugins(level::LevelPlugin)
         .add_plugins(planet::PlanetPlugin)
+        .add_plugins(satellite::SatellitePlugin)
         .run()
 }
