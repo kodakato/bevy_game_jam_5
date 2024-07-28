@@ -16,20 +16,25 @@ impl Plugin for SatellitePlugin {
 
 #[derive(Component, Default)]
 pub struct Satellite {
-    pub orbit_center: Vec2,
+    pub orbit_center: Transform,
     pub radius: f32,
     pub angular_velocity: f32, // Radians per second
 }
-#[derive(Event)]
+#[derive(Event, Default)]
 pub struct SpawnSatelliteEvent {
-    pub orbit_centre: Vec2,
+    pub orbit_centre: Transform,
     pub satellite_transform: Transform,
     pub radius: f32,
     pub angular_velocity: f32,
 }
 
 #[derive(Bundle, Default)]
-struct SatelliteBundle(Satellite, MaterialMesh2dBundle<ColorMaterial>);
+struct SatelliteBundle(
+    Satellite,
+    MaterialMesh2dBundle<ColorMaterial>,
+    Collider,
+    RigidBody,
+);
 
 const SATELLITE_RADIUS: f32 = 100.0;
 
@@ -54,6 +59,8 @@ fn spawn_satellite(
                 transform: event.satellite_transform,
                 ..default()
             },
+            Collider::ball(SATELLITE_RADIUS),
+            RigidBody::KinematicPositionBased,
         ));
     }
 }
@@ -65,8 +72,8 @@ fn orbit_satellite(time: Res<Time>, mut query: Query<(&mut Transform, &Satellite
 
         // Calculate the new position based on the angle
         let new_position = Vec2::new(
-            satellite.orbit_center.x + satellite.radius * angle.cos(),
-            satellite.orbit_center.y + satellite.radius * angle.sin(),
+            satellite.orbit_center.translation.x + satellite.radius * angle.cos(),
+            satellite.orbit_center.translation.y + satellite.radius * angle.sin(),
         );
 
         // Update the satellite's position

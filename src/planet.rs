@@ -28,7 +28,7 @@ fn spawn_planet(
 ) {
     for event in spawn_planet_er.read() {
         let radius = event.1;
-        let mass = radius.powf(2.5);
+        let mass = radius.min(5000.0).powf(2.5);
         commands.spawn((
             Collider::ball(radius),
             RigidBody::KinematicVelocityBased,
@@ -41,30 +41,40 @@ fn spawn_planet(
             },
             ColliderMassProperties::Mass(mass),
         ));
+        debug! {"Planet spawned with mass {:?}", mass};
     }
 }
 
 // Attracts all other non planet objects
 fn apply_gravitational_forces(
     mut non_planet_q: Query<(&mut ExternalImpulse, &Transform), Without<PlanetTag>>,
-    planet_q: Query<(&Transform, &ColliderMassProperties), With<PlanetTag>>,
+    planet_q: Query<(&Transform, &ColliderMassProperties, &Collider), With<PlanetTag>>,
 ) {
-    const G: f32 = 3.0;
+    const G: f32 = 2.0;
 
     for (mut external_impulse, non_planet_transform) in non_planet_q.iter_mut() {
         let non_planet_position = non_planet_transform.translation.truncate();
 
-        for (planet_transform, planet_mass_props) in planet_q.iter() {
+        for (planet_transform, planet_mass_props, collider) in planet_q.iter() {
             let planet_position = planet_transform.translation.truncate();
+            let planet_radius = collider
+                .as_ball()
+                .expect("Can't make collider into ball")
+                .radius();
             let planet_mass = match planet_mass_props {
                 ColliderMassProperties::Mass(mass) => *mass,
                 _ => 0.0, // Handle other cases if needed
             };
 
+            // Calculate the direction from the object to the planet's center
             let direction = planet_position - non_planet_position;
-            let distance_squared = direction.length_squared();
 
-            if distance_squared > 0.0 {
+            // Calculate the distance to the surface of the planet
+            let distance = direction.length() - planet_radius / 2.0;
+
+            // Calculate the force magnitude using the distance to the surface
+            if distance > 0.0 {
+                let distance_squared = distance * distance;
                 let force_magnitude = G * planet_mass / distance_squared;
                 let impulse = direction.normalize() * force_magnitude;
 

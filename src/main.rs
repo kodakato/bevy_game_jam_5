@@ -3,6 +3,7 @@ use bevy_rapier2d::prelude::*;
 
 mod camera;
 mod debug;
+mod explosion;
 mod input;
 mod level;
 mod planet;
@@ -25,5 +26,6 @@ fn main() -> AppExit {
         .add_plugins(level::LevelPlugin)
         .add_plugins(planet::PlanetPlugin)
         .add_plugins(satellite::SatellitePlugin)
+        .add_plugins(explosion::ExplosionPlugin)
         .run()
 }

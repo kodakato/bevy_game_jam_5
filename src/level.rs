@@ -13,24 +13,29 @@ impl Plugin for LevelPlugin {
 use crate::planet::*;
 use crate::satellite::*;
 
-pub fn build_level(
+fn build_level(
     mut spawn_planet_ew: EventWriter<SpawnPlanetEvent>,
     mut spawn_satellite_ew: EventWriter<SpawnSatelliteEvent>,
 ) {
-    let transform = Transform::from_xyz(8000.0, 0.0, 0.0);
+    // Spawn Moon
+    let (moon_transform, moon_radius) = (Transform::from_xyz(-100.0, -1080.0, 0.0), 1000.0);
+    spawn_planet_ew.send(SpawnPlanetEvent(moon_transform, moon_radius));
 
-    // Spawn planet
-    spawn_planet_ew.send(SpawnPlanetEvent(transform, 3000.0));
-    spawn_planet_ew.send(SpawnPlanetEvent(
-        Transform::from_xyz(-9000.0, 5000.0, 0.0),
-        1000.0,
-    ));
+    // Spawn Planet
+    let (planet_transform, planet_radius) = (Transform::from_xyz(0.0, 20000.0, 0.0), 10000.0);
+    spawn_planet_ew.send(SpawnPlanetEvent(planet_transform, planet_radius));
 
-    // Spawn satellite
     spawn_satellite_ew.send(SpawnSatelliteEvent {
-        orbit_centre: Vec2::new(transform.translation.x, transform.translation.y),
-        satellite_transform: Transform::from_xyz(-2000.0, 0.0, 0.0),
-        radius: 6000.0,
-        angular_velocity: 0.1,
+        orbit_centre: moon_transform,
+        radius: 1500.0,
+        angular_velocity: 1.0,
+        ..default()
+    });
+
+    spawn_satellite_ew.send(SpawnSatelliteEvent {
+        orbit_centre: moon_transform,
+        radius: 1800.0,
+        angular_velocity: 0.8,
+        ..default()
     });
 }

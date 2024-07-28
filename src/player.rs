@@ -53,7 +53,6 @@ fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     ]);
 
     let cuboid_height = PLAYER_SIZE.height - PLAYER_SIZE.width;
-    let ball_radius = PLAYER_SIZE.width / 2.0;
 
     // Create a combined collider using a cuboid and a ball
     let colliders = Collider::compound(vec![
@@ -88,10 +87,14 @@ fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         RigidBody::Dynamic,
         Velocity::default(),
         ExternalImpulse::default(),
-        ColliderMassProperties::Mass(20.0),
+        ColliderMassProperties::MassProperties(MassProperties {
+            mass: 20.0,
+            local_center_of_mass: Vec2::new(0.0, 0.0),
+            principal_inertia: 7000.0,
+        }),
         Damping {
             linear_damping: 0.0,
-            angular_damping: 0.1,
+            angular_damping: 0.4,
         },
         ExternalForce::default(),
     ));
