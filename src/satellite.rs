@@ -10,7 +10,10 @@ impl Plugin for SatellitePlugin {
             // Events
             .add_event::<SpawnSatelliteEvent>()
             // Systems
-            .add_systems(Update, (spawn_satellite, orbit_satellite));
+            .add_systems(
+                Update,
+                (spawn_satellite, orbit_satellite, despawn_satellite),
+            );
     }
 }
 
@@ -28,12 +31,16 @@ pub struct SpawnSatelliteEvent {
     pub angular_velocity: f32,
 }
 
+#[derive(Component, Default)]
+pub struct Health(pub u32);
+
 #[derive(Bundle, Default)]
 struct SatelliteBundle(
     Satellite,
     MaterialMesh2dBundle<ColorMaterial>,
     Collider,
     RigidBody,
+    Health,
 );
 
 const SATELLITE_RADIUS: f32 = 100.0;
@@ -61,6 +68,7 @@ fn spawn_satellite(
             },
             Collider::ball(SATELLITE_RADIUS),
             RigidBody::KinematicPositionBased,
+            Health(2),
         ));
     }
 }
@@ -78,5 +86,25 @@ fn orbit_satellite(time: Res<Time>, mut query: Query<(&mut Transform, &Satellite
 
         // Update the satellite's position
         transform.translation = new_position.extend(transform.translation.z);
+    }
+}
+
+use crate::debris::SpawnDebrisEvent;
+use rand::*;
+
+fn despawn_satellite(
+    satellite_q: Query<(Entity, &Health, &Transform), With<Satellite>>,
+    mut commands: Commands,
+    mut spawn_debris_ew: EventWriter<SpawnDebrisEvent>,
+) {
+    for (entity, health, transform) in satellite_q.iter() {
+        if health.0 < 1 {
+            commands.entity(entity).despawn();
+
+            let amount = rand::thread_rng().gen_range(3..15);
+            for _ in 0..amount {
+                spawn_debris_ew.send(SpawnDebrisEvent(*transform));
+            }
+        }
     }
 }

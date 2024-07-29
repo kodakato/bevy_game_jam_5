@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::*};
 use bevy_rapier2d::prelude::*;
 
 pub struct ProjectilePlugin;
@@ -25,7 +25,7 @@ pub struct ProjectileBundle(
     Collider,
     Sensor,
     Velocity,
-    SpriteBundle,
+    MaterialMesh2dBundle<ColorMaterial>,
     ProjectileTag,
     ExternalImpulse,
     ColliderMassProperties,
@@ -36,26 +36,28 @@ pub struct ProjectileBundle(
 pub struct ProjectileTag;
 
 struct ProjectileSize {
-    height: f32,
     width: f32,
 }
 
-const PROJECTILE_SIZE: ProjectileSize = ProjectileSize {
-    height: 10.0,
-    width: 5.0,
-};
+const PROJECTILE_SIZE: ProjectileSize = ProjectileSize { width: 15.0 };
 
 fn spawn_projectile(
     mut commands: Commands,
     mut spawn_projectile_er: EventReader<SpawnProjectileEvent>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     for event in spawn_projectile_er.read() {
         let projectile_bundle = ProjectileBundle(
             RigidBody::Dynamic,
-            Collider::capsule_y(PROJECTILE_SIZE.height / 2.0, PROJECTILE_SIZE.width / 2.0),
+            Collider::ball(PROJECTILE_SIZE.width / 2.0),
             Sensor,
             event.1,
-            SpriteBundle {
+            MaterialMesh2dBundle {
+                mesh: Mesh2dHandle(meshes.add(Circle {
+                    radius: PROJECTILE_SIZE.width / 2.0,
+                })),
+                material: materials.add(Color::srgb(0.0, 1.0, 0.0)),
                 transform: event.0,
                 ..default()
             },
@@ -82,12 +84,13 @@ fn accelerate_projectiles(
     }
 }
 
-use crate::{explosion::*, player::*};
+use crate::{explosion::*, player::*, satellite::*};
 
 fn hit_object(
     projectile_q: Query<(Entity, &Transform), With<ProjectileTag>>,
     mut collision_er: EventReader<CollisionEvent>,
     object_q: Query<Entity, Without<PlayerTag>>,
+    mut health_q: Query<&mut Health>,
     mut spawn_explosion_ew: EventWriter<SpawnExplosionEvent>,
     mut commands: Commands,
 ) {
@@ -120,6 +123,13 @@ fn hit_object(
 
                 // Despawn the projectile
                 commands.entity(projectile_entity).despawn();
+
+                // Subtract health if the object has a Health component
+                if let Ok(mut health) = health_q.get_mut(*entity1) {
+                    health.0 -= 1;
+                } else if let Ok(mut health) = health_q.get_mut(*entity2) {
+                    health.0 -= 1;
+                }
             }
             _ => continue,
         }

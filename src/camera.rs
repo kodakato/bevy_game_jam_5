@@ -7,7 +7,7 @@ impl Plugin for CameraPlugin {
         app
             // Systems
             .add_systems(Startup, spawn_camera)
-            .add_systems(Update, follow_player);
+            .add_systems(Update, (follow_player, auto_zoom));
     }
 }
 
@@ -58,4 +58,45 @@ fn follow_player(
     let player_transform = player_q.single();
 
     camera_transform.translation = player_transform.translation;
+}
+
+use crate::planet::*;
+
+const MIN_ZOOM: f32 = 1.0;
+const MAX_ZOOM: f32 = 30.0;
+const ZOOM_SCALE: f32 = 0.005;
+
+// Automatically adjusts the zoom depending on the distance from the closest planet
+fn auto_zoom(
+    mut camera_q: Query<&mut OrthographicProjection, With<Camera>>,
+    planet_q: Query<(&Transform, &Collider), With<PlanetTag>>,
+    player_q: Query<&Transform, With<PlayerTag>>,
+) {
+    let mut projection = camera_q.single_mut();
+    let player_transform = player_q.single();
+
+    // Initialize distance to a large value
+    let mut min_distance = f32::MAX;
+
+    // Find the closest planet
+    for (planet_transform, planet_collider) in planet_q.iter() {
+        let planet_radius = planet_collider
+            .as_ball()
+            .expect("Can't make collider into ball")
+            .radius();
+        let current_distance = planet_transform
+            .translation
+            .distance(player_transform.translation)
+            - planet_radius;
+
+        if current_distance < min_distance {
+            min_distance = current_distance;
+        }
+    }
+
+    // Calculate the new scale based on the closest distance
+    let new_scale = (min_distance * ZOOM_SCALE).clamp(MIN_ZOOM, MAX_ZOOM);
+
+    // Set the projection scale
+    projection.scale = new_scale;
 }

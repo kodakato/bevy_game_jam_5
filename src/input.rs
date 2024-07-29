@@ -107,6 +107,7 @@ fn camera_control(
         .for_each(|&action| match action {
             CameraAction::ZoomIn => {
                 projection.scale -= PROJECTION_SCALE;
+                println!("Scale: {}", projection.scale);
             }
             CameraAction::ZoomOut => projection.scale += PROJECTION_SCALE,
         });

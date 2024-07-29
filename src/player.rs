@@ -57,12 +57,12 @@ fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Create a combined collider using a cuboid and a ball
     let colliders = Collider::compound(vec![
         (
-            Vec2::new(0.0, -cuboid_height / 2.0).into(),
+            Vec2::new(0.0, -cuboid_height / 2.0),
             0.0,
             Collider::cuboid(PLAYER_SIZE.width / 2.0, cuboid_height / 2.0),
         ),
         (
-            Vec2::new(0.0, 0.0).into(),
+            Vec2::new(0.0, 0.0),
             0.0,
             Collider::capsule_y(
                 PLAYER_SIZE.height / 2.0 - PLAYER_SIZE.width / 2.0,

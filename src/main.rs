@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 mod camera;
+mod debris;
 mod debug;
 mod explosion;
 mod input;
@@ -10,6 +11,7 @@ mod planet;
 mod player;
 mod projectile;
 mod satellite;
+mod ui;
 
 fn main() -> AppExit {
     let mut rapier_config = RapierConfiguration::new(100.0);
@@ -27,5 +29,11 @@ fn main() -> AppExit {
         .add_plugins(planet::PlanetPlugin)
         .add_plugins(satellite::SatellitePlugin)
         .add_plugins(explosion::ExplosionPlugin)
+        .add_plugins(debris::DebrisPlugin)
+        .add_plugins(ui::UiPlugin)
+        .insert_resource(Score(0))
         .run()
 }
+
+#[derive(Resource)]
+struct Score(u32);

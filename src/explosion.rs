@@ -26,13 +26,14 @@ struct ExplosionBundle(
     Collider,
     ExplosionTimer,
     Sensor,
+    ActiveEvents,
 );
 
 #[derive(Event)]
 pub struct SpawnExplosionEvent(pub Transform);
 
 const EXPLOSION_RADIUS: f32 = 20.0;
-const EXPLOSION_TIME: f32 = 0.2;
+const EXPLOSION_TIME: f32 = 0.05;
 
 fn spawn_explosion(
     mut spawn_explosion_er: EventReader<SpawnExplosionEvent>,
@@ -46,7 +47,7 @@ fn spawn_explosion(
                 mesh: Mesh2dHandle(meshes.add(Circle {
                     radius: EXPLOSION_RADIUS,
                 })),
-                material: materials.add(Color::srgb(0.0, 1.0, 0.0)),
+                material: materials.add(Color::srgb(0.2, 0.5, 0.0)),
                 transform: event.0,
                 ..default()
             },
@@ -54,6 +55,7 @@ fn spawn_explosion(
             Collider::ball(EXPLOSION_RADIUS),
             ExplosionTimer(Timer::from_seconds(EXPLOSION_TIME, TimerMode::Once)),
             Sensor,
+            ActiveEvents::COLLISION_EVENTS,
         ));
     }
 }
