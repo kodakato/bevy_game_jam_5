@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_embedded_assets::{EmbeddedAssetPlugin, PluginMode};
 use bevy_rapier2d::prelude::*;
 
 mod camera;
@@ -19,6 +20,9 @@ fn main() -> AppExit {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugins(EmbeddedAssetPlugin {
+            mode: PluginMode::ReplaceDefault,
+        })
         .insert_resource(rapier_config)
         .add_plugins(camera::CameraPlugin)
         .add_plugins(player::PlayerPlugin)
